@@ -9,37 +9,30 @@
 <body>
 
     <?php
-    // function to encrypt the text given
     function encrypt($pswd, $text)
     {
-        // change key to lowercase for simplicity
+        
         $pswd = strtolower($pswd);
         
-        // intialize variables
         $code = "";
         $ki = 0;
         $kl = strlen($pswd);
         $length = strlen($text);
         
-        // iterate over each line in text
         for ($i = 0; $i < $length; $i++)
         {
-            // if the letter is alpha, encrypt it
             if (ctype_alpha($text[$i]))
             {
-                // uppercase
                 if (ctype_upper($text[$i]))
                 {
                     $text[$i] = chr(((ord($pswd[$ki]) - ord("a") + ord($text[$i]) - ord("A")) % 26) + ord("A"));
                 }
                 
-                // lowercase
                 else
                 {
                     $text[$i] = chr(((ord($pswd[$ki]) - ord("a") + ord($text[$i]) - ord("a")) % 26) + ord("a"));
                 }
                 
-                // update the index of key
                 $ki++;
                 if ($ki >= $kl)
                 {
@@ -48,29 +41,22 @@
             }
         }
         
-        // return the encrypted code
         return $text;
     }
     
-    // function to decrypt the text given
     function decrypt($pswd, $text)
     {
-        // change key to lowercase for simplicity
         $pswd = strtolower($pswd);
         
-        // intialize variables
         $code = "";
         $ki = 0;
         $kl = strlen($pswd);
         $length = strlen($text);
         
-        // iterate over each line in text
         for ($i = 0; $i < $length; $i++)
         {
-            // if the letter is alpha, decrypt it
             if (ctype_alpha($text[$i]))
             {
-                // uppercase
                 if (ctype_upper($text[$i]))
                 {
                     $x = (ord($text[$i]) - ord("A")) - (ord($pswd[$ki]) - ord("a"));
@@ -85,7 +71,6 @@
                     $text[$i] = chr($x);
                 }
                 
-                // lowercase
                 else
                 {
                     $x = (ord($text[$i]) - ord("a")) - (ord($pswd[$ki]) - ord("a"));
@@ -100,7 +85,6 @@
                     $text[$i] = chr($x);
                 }
                 
-                // update the index of key
                 $ki++;
                 if ($ki >= $kl)
                 {
@@ -109,8 +93,31 @@
             }
         }
         
-        // return the decrypted text
         return $text;
+    }
+
+    $text = "";
+    $key = "";
+    $valid = true;
+
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+        $text = $_POST['text'];
+        $key = $_POST['key'];
+
+        if(empty($_POST['key'])){
+            $valid = false;
+        }elseif (empty($_POST['text'])) {
+            $valid = false;
+        }
+
+        if ($valid) {
+            if (isset($_POST['encrypt'])) {
+                $text = encrypt($key, $text);
+            }
+            if (isset($_POST['decrypt'])) {
+                $text = decrypt($key, $text);
+            }
+        }
     }
     
     ?>
@@ -135,39 +142,15 @@
                             <div class="row">
                                 <div class="mb-3">
                                     <label for="text" class="form-label">Text</label>
-                                    <textarea name="text" id="text" rows="2" class="form-control"></textarea>
+                                    <textarea name="text" id="text" rows="2" class="form-control" required><?php echo htmlspecialchars($text)?></textarea>
                                     </div>
                                 <div class="mb-3">
                                     <label for="key" class="form-label">Key</label>
-                                    <input type="text" name="key" class="form-control"></textarea>
+                                    <input type="text" name="key" class="form-control" required value="<?php echo htmlspecialchars($key)?>">
                                 </div>
                             </div>
                             <button type="submit" name="encrypt" class="btn btn-primary mb-3">Encrypt</button>
                             <button type="submit" name="decrypt" class="btn btn-danger mb-3">Decrypt</button>
-                            <hr>
-                            <div class="row">
-                                <div class="mb-3">
-                                    <?php 
-                                        if(isset($_POST['text'], $_POST['key'], $_POST['encrypt'])){
-                                            $text = $_POST['text'];
-                                            $key = $_POST['key'];                                            
-                                            $cipherText = encrypt($key, $text);
-                                            
-                                            echo "Text asli : " . $text . '<br>';
-                                            echo "key     : " . $key . '<br>';
-                                            echo "Hasil     : " . $cipherText . "<br>";
-                                        }
-                                        if(isset($_POST['text'], $_POST['key'], $_POST['decrypt'])){
-                                            $text = $_POST['text'];
-                                            $key = $_POST['key'];                                            
-                                            $cipherText = decrypt($key, $text);
-                                            
-                                            echo "Text asli : " . $text . '<br>';
-                                            echo "key     : " . $key . '<br>';
-                                            echo "Hasil     : " . $cipherText . "<br>";
-                                        }
-                                    ?>
-                                </div>
                             </div>
                         </form>
                     </div>

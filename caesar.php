@@ -9,30 +9,58 @@
 <body>
 
     <?php
+
     function Cipher($ch, $key)
     {
         if (!ctype_alpha($ch))
             return $ch;
-    
+
         $offset = ord(ctype_upper($ch) ? 'A' : 'a');
         return chr(fmod(((ord($ch) + $key) - $offset), 26) + $offset);
     }
-    
+
     function Encipher($input, $key)
     {
         $output = "";
-    
+
         $inputArr = str_split($input);
         foreach ($inputArr as $ch)
             $output .= Cipher($ch, $key);
-    
+
         return $output;
     }
-    
+
     function Decipher($input, $key)
     {
         return Encipher($input, 26 - $key);
     }
+
+    $text = "";
+    $geser = "";
+    $valid = true;
+
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+        $text = $_POST['text'];
+        $geser = $_POST['geser'];
+
+        if(empty($_POST['geser'])){
+            $valid = false;
+        }elseif (empty($_POST['text'])) {
+            $valid = false;
+        }
+
+        if ($valid) {
+            if (isset($_POST['encrypt'])) {
+                $text = Encipher($text, $geser);
+            }
+            if (isset($_POST['decrypt'])) {
+                $text = Decipher($text, $geser);
+            }
+        }
+    }
+
+
+    
     ?>
 
     <nav class="navbar navbar-dark bg-primary">
@@ -55,37 +83,15 @@
                             <div class="row">
                                 <div class="mb-3">
                                     <label for="text" class="form-label">Text</label>
-                                    <textarea name="text" id="text" rows="2" class="form-control"></textarea>
+                                    <textarea name="text" id="text" rows="2" class="form-control" required><?php echo htmlspecialchars($text)?></textarea>
                                     </div>
                                 <div class="mb-3">
                                     <label for="geser" class="form-label">Geser</label>
-                                    <input type="number" name="geser" class="form-control"></textarea>
+                                    <input type="number" name="geser" class="form-control" required value="<?php echo htmlspecialchars($geser)?>">
                                 </div>
                             </div>
                             <button type="submit" name="encrypt" class="btn btn-primary mb-3">Encrypt</button>
                             <button type="submit" name="decrypt" class="btn btn-danger mb-3">Decrypt</button>
-                            <hr>
-                            <div class="row">
-                                <div class="mb-3">
-                                    <?php 
-                                        if(isset($_POST['text'], $_POST['geser'], $_POST['encrypt'])){
-                                            $text = $_POST['text'];
-                                            $s = $_POST['geser']; 
-                                            
-                                            echo "Text asli : " . $text . '<br>';
-                                            echo "Geser     : " . $s . '<br>';
-                                            echo "Hasil     : " .Encipher($text, $s);
-                                        } elseif(isset($_POST['text'], $_POST['geser'], $_POST['decrypt'])){
-                                            $text = $_POST['text'];
-                                            $s = $_POST['geser']; 
-                                            
-                                            echo "Text asli : " . $text . '<br>';
-                                            echo "Geser     : " . $s . '<br>';
-                                            echo "Hasil     : " .Decipher($text, $s);
-                                        }
-                                    ?>
-                                </div>
-                            </div>
                         </form>
                     </div>
                 </div>
